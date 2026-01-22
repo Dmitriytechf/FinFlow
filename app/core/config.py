@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
-        '''Формируем URL для подключения к PostgreSQL'''
+        '''URL для подключения к PostgreSQL'''
         return f'postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}'
 
     # Redis (для кеша и Celery)
@@ -58,6 +58,11 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = ['*'] # Только для разработки!
 
     class Config:
+        '''
+        Конфигурация Pydantic Settings:
+        - Читать переменные из .env файла
+        - Кодировка UTF-8
+        '''
         env_file = '.env'
         env_file_encoding = 'utf-8'
 
