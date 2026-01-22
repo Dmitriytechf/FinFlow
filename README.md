@@ -13,7 +13,7 @@
 
 ### Предварительные требования
 
-- **Python 3.9+**
+- **Python 3.10+**
 - **Docker & Docker Compose**
 - **Make** (для Windows установить через Chocolatey)
 
