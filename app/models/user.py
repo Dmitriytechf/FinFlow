@@ -30,6 +30,7 @@ class User(BaseModel):
     )
 
     accounts = relationship('Account', back_populates='user', cascade='all, delete-orphan')
+    categories = relationship('Category', back_populates='user', cascade='all, delete-orphan')
 
     def __repr__(self):
         '''
