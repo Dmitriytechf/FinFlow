@@ -56,6 +56,10 @@ class Account(BaseModel):
 
     # Связи
     user = relationship('User', back_populates='accounts')
+    transactions = relationship('Transaction',
+                                foreign_keys='Transaction.account_id',
+                                back_populates='account', 
+                                cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Account(id={self.id}, name={self.name}, balance={self.balance})>'

@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Column, String, ForeignKey, Boolean, Enum
+from sqlalchemy import Column, String, ForeignKey, Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -50,6 +50,9 @@ class Category(BaseModel):
     user = relationship('User', back_populates='categories')
     parent = relationship('Category', remote_side='Category.id', back_populates='children')
     children = relationship('Category', back_populates='parent')
+    transactions = relationship('Transaction',
+                                back_populates='category',
+                                cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Category(id={self.id}, name={self.name}, type={self.type.value})>'
