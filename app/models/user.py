@@ -1,4 +1,6 @@
 from sqlalchemy import Column, String
+from sqlalchemy.orm import relationship
+
 from app.models.base import BaseModel
 
 
@@ -26,6 +28,8 @@ class User(BaseModel):
         String(64),
         nullable=True
     )
+
+    accounts = relationship('Account', back_populates='user', cascade='all, delete-orphan')
 
     def __repr__(self):
         '''
