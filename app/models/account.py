@@ -60,6 +60,7 @@ class Account(BaseModel):
                                 foreign_keys='Transaction.account_id',
                                 back_populates='account', 
                                 cascade='all, delete-orphan')
+    goals = relationship('Goal', back_populates='account', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Account(id={self.id}, name={self.name}, balance={self.balance})>'

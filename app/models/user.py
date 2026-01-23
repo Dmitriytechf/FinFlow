@@ -29,11 +29,13 @@ class User(BaseModel):
         nullable=True
     )
 
+    # Связи
     accounts = relationship('Account', back_populates='user', cascade='all, delete-orphan')
     categories = relationship('Category', back_populates='user', cascade='all, delete-orphan')
     transactions = relationship('Transaction',
                                 back_populates='user',
-                                cascade='save-update, merge')
+                                cascade='all, delete-orphan')
+    goals = relationship('Goal', back_populates='user', cascade='all, delete-orphan')
 
     def __repr__(self):
         '''
