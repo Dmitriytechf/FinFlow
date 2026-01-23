@@ -90,4 +90,4 @@ class Goal(BaseModel):
     account = relationship('Account', back_populates='goals')
 
     def __repr__(self):
-        return f'<Goal(id={self.id}, name={self.name}>'
+        return f'<Goal(id={self.id}, name={self.name})>'
