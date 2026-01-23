@@ -1,122 +1,101 @@
-.PHONY: help install dev test format lint docker-up docker-down logs
-
-GREEN := \033[0;32m
-YELLOW := \033[1;33m
-RED := \033[0;31m
-NC := \033[0m
+﻿.PHONY: help venv install dev test docker-up docker-down docker-build \
+        logs-api logs-celerybeat logs-celeryworker db-shell redis-cli \
+        migrate migrate-up migrate-down clean mini-reset reset
 
 
 help: ## Показать помощь
-	@echo "${YELLOW}FinFlow API - Команды управления${NC}"
+	@echo "FinFlow API - Management Commands"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "${GREEN}%-20s${NC} %s\n", $$1, $$2}'
 	@echo "^-^"
 
 venv: ## Создать виртуальное окружение
-	@echo "${YELLOW}Создание виртуального окружения...${NC}"
+	@echo "Creating virtual environment..."
 	python -m venv venv
-	@echo "${GREEN}Виртуальное окружение создано${NC}"
-	@echo "Для активации:"
+	@echo "Virtual environment created"
+	@echo "To activate:"
 	@echo "  Linux/macOS: source venv/bin/activate"
 	@echo "  Windows:     venv\\Scripts\\activate"
 
 install: ## Установить основные зависимости
-	@echo "${YELLOW}Установка основных зависимостей...${NC}"
+	@echo "Installing main dependencies..."
 	pip install -r requirements.txt
-	@echo "${GREEN}Основные зависимости установлены${NC}"
+	@echo "Main dependencies installed"
 
 dev: ## Запустить сервер для разработки
-	@echo "${YELLOW}Запуск сервера разработки...${NC}"
+	@echo "Starting development server..."
 	uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 test: ## Запустить тесты
-	@echo "${YELLOW}Запуск тестов...${NC}"
+	@echo "Running tests..."
 	pytest -v
 
 docker-up: ## Запустить все сервисы в Docker
-	@echo "${YELLOW}Запуск Docker Compose...${NC}"
+	@echo "Starting Docker Compose..."
 	docker-compose up -d
-	@echo "${GREEN}✓ Сервисы запущены${NC}"
+	@echo "✓ Services started"
 	@echo "API: http://localhost:8000"
 	@echo "Docs: http://localhost:8000/docs"
 
 docker-down: ## Остановить Docker Compose
-	@echo "${YELLOW}Остановка Docker Compose...${NC}"
+	@echo "Stopping Docker Compose..."
 	docker-compose down
 
 docker-build: ## Пересобрать Docker образы
-	@echo "${YELLOW}Пересборка Docker образов...${NC}"
+	@echo "Rebuilding Docker images..."
 	docker-compose build --no-cache
 
 logs-api: ## Показать логи API
-	@echo "${YELLOW}Логи API:${NC}"
+	@echo "API logs:"
 	docker-compose logs -f api
 
 logs-celerybeat: ## Показать логи celery-beat
-	@echo "${YELLOW}Логи Сelery beat:${NC}"
+	@echo "Celery beat logs:"
 	docker-compose logs -f celery-beat
 
 logs-celeryworker: ## Показать логи celery-worker
-	@echo "${YELLOW}Логи Celery worker:${NC}"
+	@echo "Celery worker logs:"
 	docker-compose logs -f celery-worker
 
 db-shell: ## Открыть shell в PostgreSQL
-	@echo "${YELLOW}Подключение к PostgreSQL...${NC}"
+	@echo "Connecting to PostgreSQL..."
 	docker-compose exec postgres psql
 
 redis-cli: ## Открыть Redis CLI
-	@echo "${YELLOW}Подключение к Redis...${NC}"
+	@echo "Connecting to Redis..."
 	docker-compose exec redis redis-cli
 
 migrate: ## Создать миграцию (использовать: make migrate m="описание")
-	@echo "${YELLOW}Создание миграции...${NC}"
+	@echo "Creating migration..."
 	alembic revision --autogenerate -m "$(m)"
 
 migrate-up: ## Применить миграции
-	@echo "${YELLOW}Применение миграций...${NC}"
+	@echo "Applying migrations..."
 	alembic upgrade head
 
 migrate-down: ## Откатить миграцию
-	@echo "${YELLOW}Откат миграции...${NC}"
+	@echo "Rolling back migration..."
 	alembic downgrade -1
 
-clean: ## Очистить временные файлы
-	@echo "${YELLOW}Очистка временных файлов...${NC}"
-ifeq ($(OS),Windows_NT)
-	@echo "Windows - удаление кэша..."
-	rmdir /s /q __pycache__ 2>nul || true
-	rmdir /s /q app\__pycache__ 2>nul || true
-	rmdir /s /q tests\__pycache__ 2>nul || true
-	del /q *.pyc 2>nul || true
-	del /q app\*.pyc 2>nul || true
-	del /q tests\*.pyc 2>nul || true
-	rmdir /s /q .pytest_cache 2>nul || true
-	rmdir /s /q .mypy_cache 2>nul || true
-	del /q .coverage 2>nul || true
-else
-	@echo "Linux/macOS - удаление кэша..."
-	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-	find . -type f -name "*.pyc" -delete 2>/dev/null || true
-	rm -rf .coverage .pytest_cache .mypy_cache .cache build/ dist/ *.egg-info 2>/dev/null || true
-endif
-	@echo "${GREEN}Очистка завершена${NC}"
+clean: ## Очистить временные файлы и папки __pycache__
+	python scripts/clean.py
 
 mini-reset: ## Пересборка контейнеров
-	@echo "${RED}Пересоздание проекта${NC}"
+	@echo "Recreating project..."
 	docker-compose down
 	docker-compose build
 	docker-compose up -d
-	@echo "${YELLOW}Жду запуска сервисов...${NC}"
+	@echo "Waiting for services to start..."
 	sleep 5
 	alembic upgrade head
-	@echo "${GREEN}Проект собран${NC}"
+	@echo "✓ Project built"
 
 reset: ## Полный сброс (остановить, удалить volumes, пересобрать)
-	@echo "${RED}ВНИМАНИЕ: Полный сброс проекта${NC}"
-	@echo "Это удалит все данные в БД!"
+	@echo "WARNING: Full project reset"
+	@echo "This will delete all data in the database!"
 	docker-compose down -v
 	docker-compose build --no-cache
 	docker-compose up -d
 	sleep 5
 	alembic upgrade head
-	@echo "${GREEN}Проект сброшен и перезапущен${NC}"
+	@echo "✓ Project reset and restarted"

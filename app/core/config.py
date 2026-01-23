@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     # Окружение
     ENVIRONMENT: str = 'development'  # development, staging, production
     DEBUG: bool = False
-    
+
     # API
     API_PREFIX: str = '/api'
     API_V1_PREFIX: str = '/api/v1'
@@ -60,7 +60,7 @@ class Settings(BaseSettings):
     class Config:
         '''
         Конфигурация Pydantic Settings:
-        - Читать переменные из .env файла
+        - Читать переменные из .env
         - Кодировка UTF-8
         '''
         env_file = '.env'
