@@ -35,6 +35,11 @@ class Settings(BaseSettings):
         '''URL для подключения к PostgreSQL'''
         return f'postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}'
 
+    @property
+    def SYNC_DATABASE_URL(self) -> str:
+        '''Синхронный URL для Alembic (psycopg2)'''
+        return f'postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}'
+
     # Redis (для кеша и Celery)
     REDIS_HOST: str = 'localhost'
     REDIS_PORT: str = '6379'

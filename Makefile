@@ -33,13 +33,17 @@ test: ## Запустить тесты
 docker-up: ## Запустить все сервисы в Docker
 	@echo "Starting Docker Compose..."
 	docker-compose up -d
-	@echo "✓ Services started"
+	@echo "Services started"
 	@echo "API: http://localhost:8000"
 	@echo "Docs: http://localhost:8000/docs"
 
-docker-down: ## Остановить Docker Compose
-	@echo "Stopping Docker Compose..."
+docker-down: ## Удалить Docker Compose
+	@echo "Delete Docker Compose..."
 	docker-compose down
+
+docker-stop: ## Остановить Docker Compose
+	@echo "Stopping Docker Compose..."
+	docker-compose stop
 
 docker-build: ## Пересобрать Docker образы
 	@echo "Rebuilding Docker images..."
