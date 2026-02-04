@@ -33,7 +33,7 @@ class Goal(BaseModel):
     account_id = Column(
         UUID(as_uuid=True),
         ForeignKey('accounts.id', ondelete='SET NULL'),
-        nullable=True,
+        nullable=True, # может быть NULL
         index=True
     )
 

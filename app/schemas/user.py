@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field, validator, ConfigDict
+from pydantic import EmailStr, Field, field_validator, ConfigDict
 from .base import BaseSchema, BaseResponseSchema
 
 
@@ -20,18 +20,18 @@ class UserRegister(BaseSchema):
         description='Имя пользователя (опционально)'
     )
 
-    @validator('password')
+    @field_validator('password')
+    @classmethod
     def validate_user_password(cls, v: str) -> str:
         '''Валидация сложности пароля'''
-        if len(v) < 8:
-            raise ValueError('Пароль должен быть не менее 8 символов')
         if not any(c.isupper() for c in v):
             raise ValueError('Пароль должен содержать хотя бы одну заглавную букву')
         if not any(c.isdigit() for c in v):
             raise ValueError('Пароль должен содержать хотя бы одну цифру')
         return v
     
-    @validator('email')
+    @field_validator('email')
+    @classmethod
     def email_to_lowercase(cls, v: str) -> str:
         '''Приводим email к нижнему регистру'''
         return v.lower()
@@ -50,7 +50,7 @@ class UserUpdate(BaseSchema):
 
 
 class UserChangePassword(BaseSchema):
-    """Смена пароля"""
+    '''Смена пароля'''
     current_password: str = Field(..., description='Текущий пароль')
     new_password: str = Field(
         ...,
@@ -59,16 +59,16 @@ class UserChangePassword(BaseSchema):
         description='Новый пароль'
     )
 
-    @validator('new_password')
+    @field_validator('new_password')
+    @classmethod
     def validate_new_password(cls, v: str, values: dict) -> str:
-        """Валидация нового пароля"""
-        if len(v) < 8:
-            raise ValueError('Новый пароль должен быть не менее 8 символов')
+        '''Валидация нового пароля'''
         if not any(c.isupper() for c in v):
             raise ValueError('Новый пароль должен содержать заглавную букву')
         if not any(c.isdigit() for c in v):
             raise ValueError('Новый пароль должен содержать цифру')
-        if 'current_password' in values and v == values['current_password']:
+        if ('current_password' in values.data and 
+            v == values.data['current_password']):
             raise ValueError('Новый пароль должен отличаться от текущего')
 
         return v
